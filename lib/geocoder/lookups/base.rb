@@ -145,23 +145,18 @@ module Geocoder
       # Fetches a raw search result (JSON string).
       #
       def fetch_raw_data(query, reverse = false)
-        timeout(Geocoder::Configuration.timeout) do
-          url = query_url(query, reverse)
-          uri = URI.parse(url)
-          if cache and body = cache[url]
-            @cache_hit = true
-          else
-            client = http_client.new(uri.host, uri.port)
-            client.use_ssl = true if Geocoder::Configuration.use_https
-            response = client.get(uri.request_uri, Geocoder::Configuration.http_headers)
-            body = response.body
-            if cache and (200..399).include?(response.code.to_i)
-              cache[url] = body
-            end
-            @cache_hit = false
+        url = query_url(query, reverse)
+        uri = URI.parse(url)
+        if cache and body = cache[url]
+          @cache_hit = true
+        else
+          body = Net::HTTP.get(uri.host, uri.request_uri)
+          if cache and (200..399).include?(response.code.to_i)
+            cache[url] = body
           end
-          body
+          @cache_hit = false
         end
+        body
       end
 
       ##
