@@ -12,6 +12,7 @@ module Geocoder::Lookup
 
     def results(query, reverse = false)
       return [] unless doc = fetch_data(query, reverse)
+      puts doc
       if err = doc['error']
         warn "Yandex Geocoding API error: #{err['status']} (#{err['message']})."
         return []
